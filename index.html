@@ -2,30 +2,386 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title>Sequences sunburst</title>
-    <script src="//d3js.org/d3.v3.min.js"></script>
-    <link rel="stylesheet" type="text/css"
-      href="https://fonts.googleapis.com/css?family=Open+Sans:400,600">
-    <link rel="stylesheet" type="text/css" href="sequences.css"/>
+    <title>Pizza Server</title>
+    <!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+<!-- Optional theme -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css" integrity="sha384-rHyoN1iRsVXV4nD0JutlnGaslCJuC7uwjduW9SVrLvRYooPp2bWYgmgJQIXwl/Sp" crossorigin="anonymous">
+
+
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+
+<!-- Latest compiled and minified JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
   </head>
   <body>
+    <div class="page-header">
+      <h1>Pizza Server</h1>
     <div id="main">
-      <div id="sequence"></div>
-      <div id="chart">
-        <div id="explanation" style="visibility: hidden;">
-          <span id="percentage"></span><br/>
-          of visits begin with this sequence of pages
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3>Pizzas</h3>
         </div>
-      </div>
-    </div>
-    <div id="sidebar">
-      <input type="checkbox" id="togglelegend"> Legend<br/>
-      <div id="legend" style="visibility: hidden;"></div>
-    </div>
-    <script type="text/javascript" src="sequences.js"></script>
-    <script type="text/javascript">
-      // Hack to make this example display correctly in an iframe on bl.ocks.org
-      d3.select(self.frameElement).style("height", "700px");
-  </script> 
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-xs-5">
+        <div class="input-group">
+  <span class="input-group-addon" id="pizza-name-addon">Name</span>
+  <input id="pizzaName" type="text" class="form-control" aria-describedby="pizza-name-addon">
+  </div>
+  </div>
+  <div class="col-xs-5">
+    <div class="input-group">
+    <span class="input-group-addon" id="pizza-description-addon">Description</span>
+  <input id="pizzaDesc" type="text" class="form-control" aria-describedby="pizza-description-addon">
+  </div>
+  </div>
+  <div class="col-xs-2">
+    <button id="create_pizza" type="button" class="btn btn-primary">Create!</button>
+  </div>
+</div>
+</div>
+          <div class="row">
+            <div class="col-xs-12">
+        <table id="pizza_table" class="table">
+          <thead>
+            <tr>
+              <th>id#</th>
+              <th>name</th>
+              <th>description</th>
+              <th>toppings</th>
+            </tr>
+          </thead>
+          
+        </table>
+        <div style="float:right">
+        <nav aria-label="Page navigation" style="display:inline-flex">
+  <ul id="pizza_pager" class="pagination">
+  </ul>
+  <div id="pizza_pages_label" class="pagination" style="margin-left:10px;margin-top:30px"></div>
+</nav>
+</div>
+</div>
+</div>
+</div>
+        </div>
+        
+        <div class="panel panel-default">
+        <div class="panel-heading">
+          <h3>Toppings</h3>
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-xs-10">
+        <div class="input-group">
+  <span class="input-group-addon" id="topping-name-addon">Name</span>
+  <input id="toppingName" type="text" class="form-control" aria-describedby="topping-name-addon">
+  </div>
+  </div>
+  
+  <div class="col-xs-2">
+    <button id="create_topping" type="button" class="btn btn-primary">Create!</button>
+  </div>
+</div>
+</div>
+          <div class="row">
+            <div class="col-xs-12">
+        <table id="topping_table" class="table">
+          <thead>
+            <tr>
+              <th>id#</th>
+              <th>name</th>
+              <th>Add to Pizza</th>
+            </tr>
+          </thead>
+          
+        </table>
+        <div style="float:right">
+        <nav aria-label="Page navigation" style="display:inline-flex">
+  <ul id="topping_pager" class="pagination">
+  </ul>
+  <div id="topping_pages_label" class="pagination" style="margin-left:10px;margin-top:30px"></div>
+</nav>
+</div>
+</div>
+</div>
+</div>
+        </div>
+        
+    
+    <script>
+    var xhttp = new XMLHttpRequest();
+    var itemsPerPage = 25;
+    var currentPizzaPage = 1;
+    var pizzaPages = 0;
+    var currentToppingPage = 1;
+    var toppingPages = 0;
+    var maxPageOptions = 5;
+    var pizzaArray;
+    var toppingArray;
+    
+      window.onload = load();
+      
+      function load() {
+        xhttp.open("GET", "https://pizzaserver.herokuapp.com/pizzas", false);
+        xhttp.send();
+        pizzaArray = JSON.parse(xhttp.responseText);
+        var remainder = pizzaArray.length % 25;
+        pizzaPages = ((pizzaArray.length - remainder) / itemsPerPage) + 1;
+        populatePizzaTable();
+        $("#create_pizza").on('click', this, function() { createPizza() });
+        xhttp.open("GET", "https://pizzaserver.herokuapp.com/toppings", false);
+        xhttp.send();
+        toppingArray = JSON.parse(xhttp.responseText);
+        var remainder = toppingArray.length % 25;
+        toppingPages = ((toppingArray.length - remainder) / itemsPerPage) + 1;
+        populateToppingTable();
+        $("#create_topping").on('click', this, function() { createTopping() });
+      };
+      
+      function populateToppingTable() {
+        $("#topping_table tbody").remove();
+        $("#topping_table").append("<tbody>");
+        var counter = 0;
+        for (var toppingIndex in toppingArray) {
+          if((counter < itemsPerPage) && (((currentToppingPage-1) * itemsPerPage) + counter) < toppingArray.length) {
+          var topping = toppingArray[((currentToppingPage-1) * itemsPerPage) + counter];
+          if(toppingIndex %2 == 0) {
+            $("#topping_table").append("<tr><td>" + topping.id + "</td><td>" + topping.name + "</td><td>" + addToPizzaButton(topping.id) + "</td></tr>");
+          } else {
+            $("#topping_table").append("<tr style=\"background-color:#ddd\"><td>" + topping.id + "</td><td>" + topping.name + "</td><td>" + addToPizzaButton(topping.id) + "</td></tr>");
+          }
+          
+        } else {
+          break;
+        }
+        counter++;
+        $("#btn_" + topping.id).on('click', this, function() { updatePizza(this);});
+        }
+        $("#topping_table").append("</tbody>");
+        createToppingPager();
+      }
+      
+      function addToPizzaButton(id) {
+        return "<div class=\"input-group\"><input id=\"input_" + id + "\" type=\"text\" class=\"form-control\" placeholder=\"Pizza Id\"><span class=\"input-group-btn\"><button id=\"btn_" + id + "\" class=\"btn btn-primary\" type=\"button\">Add to pizza</button></span>";
+      }
+      
+      function createTopping() {
+        var topping = {
+          name: document.getElementById('toppingName').value,
+        };
+        xhttp.open("POST", "https://pizzaserver.herokuapp.com/toppings", false);
+        xhttp.setRequestHeader("Content-type", "application/JSON");
+        xhttp.send(JSON.stringify(topping));
+        populateToppingTable();
+      }
+      
+      function createPizza() {
+        var pizza = {
+          name: document.getElementById('pizzaName').value,
+          description: document.getElementById('pizzaDesc').value
+        };
+        xhttp.open("POST", "https://pizzaserver.herokuapp.com/pizzas", false);
+        xhttp.setRequestHeader("Content-type", "application/JSON");
+        xhttp.send(JSON.stringify(pizza));
+        populatePizzaTable();
+      }
+      
+      function populatePizzaTable() {
+        $("#pizza_table tbody").remove();
+        $("#pizza_table").append("<tbody>");
+        var counter = 0;
+        for (var pizzaIndex in pizzaArray) {
+          if((counter < itemsPerPage) && (((currentPizzaPage-1) * itemsPerPage) + counter) < pizzaArray.length) {
+          var pizza = pizzaArray[((currentPizzaPage-1) * itemsPerPage) + counter];
+          xhttp.open("GET", "https://pizzaserver.herokuapp.com/pizzas/" + pizza.id + "/toppings", false);
+          xhttp.send();
+          var pizzaToppingArray;
+          if (xhttp.status === 200 || xhttp.status === 304) {
+            pizzaToppingArray = JSON.parse(xhttp.responseText);
+          } else {
+            pizzaToppingArray = "Unavailable";
+          }
+          if(pizzaIndex %2 == 0) {
+            $("#pizza_table").append("<tr><td>" + pizza.id + "</td><td>" + pizza.name + "</td><td>" + pizza.description + "</td><td>" + printToppings(pizzaToppingArray) + "</td></tr>");
+          } else {
+            $("#pizza_table").append("<tr style=\"background-color:#ddd\"><td>" + pizza.id + "</td><td>" + pizza.name + "</td><td>" + pizza.description + "</td><td>" + printToppings(pizzaToppingArray) + "</td></tr>");
+          }
+          
+        } else {
+          break;
+        }
+        counter++;
+        $("#btn_" + pizza.id).on('click', this, function() { updatePizza(this);});
+        }
+        $("#pizza_table").append("</tbody>");
+        createPizzaPager();
+      }
+      
+      function printToppings(pizzaToppingArray) {
+        var toppingText = "";
+        if(pizzaToppingArray == "Unavailable") {
+          return pizzaToppingArray;
+        }
+        for (var topping in pizzaToppingArray) {
+          toppingText += pizzaToppingArray[topping].name + ", ";
+        }
+        
+        toppingText = toppingText.substr(0, toppingText.length-2);
+        
+        return toppingText;
+      }
+      
+      function updatePizza(pizzaButton) {
+        var toppingId = pizzaButton.id.split("_")[1];
+        var pizzaId = document.getElementById("input_" + toppingId).value;
+        
+        xhttp.open("POST", "https://pizzaserver.herokuapp.com/pizzas/" + pizzaId + "/toppings", false);
+        xhttp.setRequestHeader("Content-type", "application/JSON");
+        xhttp.send(JSON.stringify({topping_id:toppingId }));
+        
+      }
+      
+      function createPizzaPager() {
+        $("#pizza_pages_label span").remove();
+        $("#pizza_pager li").remove();
+        $("#pizza_pages_label").append("<span id= class=\"label label-default\">" + currentPizzaPage + " of " + pizzaPages + "</span>");
+        
+        $("#pizza_pager").append("<li id=\"pizza_prev\" ><a href=\"#\" onclick=\"prev_pizza_page()\" aria-label=\"Previous\"><span aria-hidden=\"true\">&laquo;</span></a></li>");
+        
+        var prevPages = 0;
+        
+        if (currentPizzaPage > 1) {
+          prevPages++;
+          if (currentPizzaPage > 2) {
+            prevPages++;
+            if ((pizzaPages - currentPizzaPage) < 2) {
+              prevPages++;
+              if ((pizzaPages - currentPizzaPage) < 1) {
+                prevPages++;
+            }
+            }
+          }
+        }
+        
+        
+        var counter = 0 - prevPages;
+        while (counter  < (maxPageOptions - prevPages)) {
+          
+          if ((currentPizzaPage + counter) == currentPizzaPage) {
+            $("#pizza_pager").append("<li class=\"active\" id=\"pizza_page_" + counter + "\"><a href=\"#\" aria-label=" + (currentPizzaPage + counter) + "\"><span aria-hidden=\"true\">" + (currentPizzaPage + counter) + "</span></a></li>");
+          } else {
+            if ((currentPizzaPage + counter) <= pizzaPages) {
+            $("#pizza_pager").append("<li id=\"pizza_page_" + counter + "\"><a href=\"#\" aria-label=" + (currentPizzaPage + counter) + "\"><span aria-hidden=\"true\">" + (currentPizzaPage + counter) + "</span></a></li>");
+          }
+          }
+          $("#pizza_page_" + counter).on('click', this, function() { goTo_pizza_page(this); });
+          counter++
+        }
+        
+        $("#pizza_pager").append("<li id=\"pizza_next\"><a href=\"#\" onclick=\"next_pizza_page()\" aria-label=\"Next\"><span aria-hidden=\"true\">&raquo;</span></a></li>");
+      }
+      
+      
+      function createToppingPager() {
+        $("#topping_pages_label span").remove();
+        $("#topping_pager li").remove();
+        $("#topping_pages_label").append("<span id= class=\"label label-default\">" + currentToppingPage + " of " + toppingPages + "</span>");
+        
+        $("#topping_pager").append("<li id=\"topping_prev\" ><a href=\"#\" onclick=\"prev_topping_page()\" aria-label=\"Previous\"><span aria-hidden=\"true\">&laquo;</span></a></li>");
+        
+        var prevPages = 0;
+        
+        if (currentToppingPage > 1) {
+          prevPages++;
+          if (currentToppingPage > 2) {
+            prevPages++;
+            if ((toppingPages - currentToppingPage) < 2) {
+              prevPages++;
+              if ((toppingPages - currentToppingPage) < 1) {
+                prevPages++;
+            }
+            }
+          }
+        }
+        
+        
+        var counter = 0 - prevPages;
+        while (counter  < (maxPageOptions - prevPages)) {
+          
+          if ((currentToppingPage + counter) == currentToppingPage) {
+            $("#topping_pager").append("<li class=\"active\" id=\"topping_page_" + counter + "\"><a href=\"#\" aria-label=" + (currentToppingPage + counter) + "\"><span aria-hidden=\"true\">" + (currentToppingPage + counter) + "</span></a></li>");
+          } else {
+            if ((currentToppingPage + counter) <= toppingPages) {
+            $("#topping_pager").append("<li id=\"topping_page_" + counter + "\"><a href=\"#\" aria-label=" + (currentToppingPage + counter) + "\"><span aria-hidden=\"true\">" + (currentToppingPage + counter) + "</span></a></li>");
+          }
+          }
+          $("#topping_page_" + counter).on('click', this, function() { goTo_topping_page(this); });
+          counter++
+        }
+        
+        $("#topping_pager").append("<li id=\"topping_next\"><a href=\"#\" onclick=\"next_topping_page()\" aria-label=\"Next\"><span aria-hidden=\"true\">&raquo;</span></a></li>");
+      }
+      
+      function goTo_pizza_page(counter) {
+        currentPizzaPage = parseInt(counter.innerText);
+        enableDisableNextPrevPager();
+        populatePizzaTable();
+      }
+      
+      function goTo_topping_page(counter) {
+        currentToppingPage = parseInt(counter.innerText);
+        enableDisableNextPrevToppingPager();
+        populateToppingTable();
+      }
+      
+      function enableDisableNextPrevPager() {
+        if (currentPizzaPage == 1) {
+          $("#pizza_prev").addClass("disabled");
+          $("#pizza_next").removeClass("disabled");
+        }
+        if (currentPizzaPage == pizzaPages) {
+          $("#pizza_next").addClass("disabled");
+          $("#pizza_prev").removeClass("disabled");
+        }
+      }
+      
+      function enableDisableNextPrevToppingPager() {
+        if (currentToppingPage == 1) {
+          $("#topping_prev").addClass("disabled");
+          $("#topping_next").removeClass("disabled");
+        }
+        if (currentToppingPage == toppingPages) {
+          $("#topping_next").addClass("disabled");
+          $("#topping_prev").removeClass("disabled");
+        }
+      }
+      
+      function prev_pizza_page() {
+        currentPizzaPage--;
+        enableDisableNextPrevPager();
+        
+      }
+      
+      function next_pizza_page() {
+        currentPizzaPage++;
+        enableDisableNextPrevPager();
+        
+      }
+      
+      function prev_topping_page() {
+        currentToppingPage--;
+        enableDisableNextPrevToppingPager()
+      }
+      
+      function next_topping_page() {
+        currentToppingPage--;
+        enableDisableNextPrevToppingPager
+      }
+    </script>
+    
   </body>
 </html>
