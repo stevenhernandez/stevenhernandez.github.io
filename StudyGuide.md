@@ -107,6 +107,13 @@ end for
 ### divide-and-conquer
 ### greedy
 ### recursion
+### binary search
+1. set upper and lower bounds of the array
+2. if lower is greater than upper stop as unsuccessful
+3. find midpoint
+4. if target is less than midpoint then midpoint+1 is new upper
+5. if target is greater than midpoint then midpoint-1 is new lower
+- O(log(n))
 ### Dijikstra
 1. Make distance on every node infinite
 2. Root distance = 0 and current = root
@@ -169,3 +176,8 @@ end for
 5. bitwise exclusive or ^
 6. bitwise inclusive or |
 7. Integer.parseInt(bitString, base)
+
+
+java.util.Arrays.binarySearch(int[] a, int key)
+java.util.Arrays.sort(int[])
+
