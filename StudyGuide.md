@@ -114,6 +114,7 @@ end for
 4. if target is less than midpoint then midpoint+1 is new upper
 5. if target is greater than midpoint then midpoint-1 is new lower
 - O(log(n))
+
 ### Dijikstra
 1. Make distance on every node infinite
 2. Root distance = 0 and current = root
