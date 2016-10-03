@@ -4,19 +4,24 @@
 ### List
 ### Map
 - use hashmap
+
 ### Linked List
 ### Array List
 ### stack
 ### queue
 ### hash-set
 - no dupes
+
 ### hash-map
-- yay dupes 
+- yay dupes
+ 
 ### binary tree
 ### heap
 - binary tree where if a is a parent of b then the key of a is ordered in respect to the key of b
+
 ### graph
 - finite set of vertices or nodes with connections
+
 ### red-black tree
 ## Sorting
 ### insertion sort
@@ -32,6 +37,7 @@ end for
 - O(n2) comparisons and swaps
 - Adaptive: O(n) time when nearly sorted
 - Very low overhead
+
 ### radix-sort
 1. create queue for each digit 0-9
 2. for each number in array to sort enqueue number in queue matching the significant digit
@@ -40,6 +46,7 @@ end for
 - stable
 - can be O(n) if numbers represented in base n
 - O(wn) w is word size usually at least O(n log(n))
+
 ### quick-sort
 1. find upper and lower indicies, then take middle element as pivot to sort around
 2. i, j are lower, higher indicies
@@ -50,6 +57,7 @@ end for
 - O(lg(n)) extra space (see discussion)
 - O(n2) time, but typically O(n·lg(n)) time
 - Not adaptive
+
 ### merge-sort
 1. check if array size = 1 if so return that array is sorted
 2. if not find middle and call sort recursively on upper and lower half
@@ -83,6 +91,7 @@ end for
 - O(n·lg(n)) time
 - Not adaptive
 - Does not require random access to data
+
 ### heap-sort
 1. heapify by running maxHeap from array midpoint to 0
 2. in heapify left = 2*index, right = 2*index+1, maxIndex =index
@@ -108,6 +117,7 @@ end for
 7. mark current node visited and remove it from unvisited set
 8. if destination visited or all nodes in unvisited set have tentative distance of infinite return
 9. set unvisited node with smallest tentative distance as current and repeat
+
 ### A*
 
 
@@ -118,6 +128,7 @@ end for
 ### breadth-first
 1. queue first element
 2. while queue not empty dequeue element, perform operations, enqueue decendents
+
 ### depth first
 1. stop cond if (null) return
 2. dfs(node.left); dfs(node.right); print(node);
@@ -127,11 +138,14 @@ end for
 1. lock lock
 2. lock.lock()
 3. lock.unlock()
+
 ### Synchronized
 1. First, it is not possible for two invocations of synchronized methods on the same object to interleave. When one thread is executing a synchronized method for an object, all other threads that invoke synchronized methods for the same object block (suspend execution) until the first thread is done with the object.
 2. Second, when a synchronized method exits, it automatically establishes a happens-before relationship with any subsequent invocation of a synchronized method for the same object. This guarantees that changes to the state of the object are visible to all threads.
+
 ### Mutex
 1. thread locks a resource that can only be unlocked by that thread
+
 ### Semaphore
 1. semaphore = new Semaphore(maxConcurrentRequests);
 2. semaphore.acquire();
@@ -139,8 +153,10 @@ end for
            semaphore.release();
 }
 4. acess control structure allows x number of concurrent requests in process
+
 ### Deadlock
 1. threads are blocked because 2 competing processes are waiting for the other to finish
+
 ### Livelock
 1. threads not able to make progress but are not blocked
 2. threads keep changing states responding to each other
