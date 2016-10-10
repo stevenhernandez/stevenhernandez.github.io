@@ -50,7 +50,7 @@ end for
 ### quick-sort
 1. find upper and lower indicies, then take middle element as pivot to sort around
 2. i, j are lower, higher indicies
-3. as long as i <= j while array[i] < pivot increment and while array[j] greater than pivot decrement to find elements that need to be swapped
+3. while i <= j {while array[i] < pivot increment and while array[j] greater than pivot decrement to find elements that need to be swapped}
 4. if i<=j swap elements array[i] and array[j] then increment i and decrement j
 5. call quicksort from lower to j and if lower < j and from i to higher if i < higher
 - Not stable
@@ -135,7 +135,7 @@ end for
 ### adjacency list
 ### breadth-first
 1. queue first element
-2. while queue not empty dequeue element, perform operations, enqueue decendents
+2. while queue not empty dequeue element, perform operations, enqueue descendants
 
 ### depth first
 1. stop cond if (null) return
@@ -160,7 +160,7 @@ end for
 3. finally {
            semaphore.release();
 }
-4. acess control structure allows x number of concurrent requests in process
+4. access control structure allows x number of concurrent requests in process
 
 ### Deadlock
 1. threads are blocked because 2 competing processes are waiting for the other to finish
@@ -168,6 +168,9 @@ end for
 ### Livelock
 1. threads not able to make progress but are not blocked
 2. threads keep changing states responding to each other
+
+### Starvation
+1. When thread of lower priority never acquires lock because threads of higher priority continue to get it
 
 ## Bit Manipulation
 1. 1 << 1 shift bit left (first operand is what to perform operation on 2nd is the number of places to shift
